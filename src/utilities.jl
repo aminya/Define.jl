@@ -105,3 +105,31 @@ function tgetfield(modul::Module, t::T, check_isdefined::Bool = false) where {T 
 end
 
 tgetfield(t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}} = tgetfield(@__MODULE__, t, check_isdefined)
+
+"""
+    teval(t::T, check_isdefined::Bool=false)
+    teval(t::T, check_isdefined::Bool=false)
+    teval(modul = @__MODULE__, t::T, check_isdefined::Bool=false)
+
+See [`tevalfast`](@ref) for fast Token evaluation.
+
+Parses and evaluates a `Token`.
+
+If you set `check_isdefined` to `true`, and `t` is not defined in the scope it returns `UndefToken` instead of throwing an error.
+
+# Examples
+```julia
+julia> t = collect(tokenize("Int64"))
+
+julia> teval(t)
+Int64
+```
+"""
+function teval(modul::Module, t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}}
+    pt = Meta.parse(t)
+    if check_isdefined && !(tisdefined(modul,pt))
+        return UndefToken
+    end
+    return Core.eval(modul, pt)
+end
+teval(t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}} = teval(@__MODULE__, t, check_isdefined)
