@@ -1,5 +1,10 @@
 module Define
 
-# Write your package code here.
+using Tokenize
+
+include("utilities.jl")
+
+export @cdef
+include("Cdef.jl")
 
 end
