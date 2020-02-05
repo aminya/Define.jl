@@ -1,3 +1,7 @@
+# will be removed once merged to Tokenize
+# https://github.com/JuliaLang/Tokenize.jl/pull/153
+import Tokenize.Tokens.Token
+
 Meta.parse(t::T) where {T <: Union{Token, Array{Token}}} = Meta.parse(untokenize(t))
 
 """
@@ -152,3 +156,20 @@ DataType
 """
 ttypeof(t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}} = typeof(tevalfast(t, check_isdefined))
 
+"""
+    tisa(t, T::Type)
+    tisa(t::T, Tspecified::Type, check_isdefined::Bool = false)
+
+Compares the specified type with the type of an evaluated Token
+
+If you set `check_isdefined` to `true`, and `t` is not defined in the scope it returns `UndefToken` instead of throwing an error.
+
+# Examples
+```julia
+julia> t = collect(tokenize("Int64"))
+
+julia> tisa(t, DataType)
+true
+```
+"""
+tisa(t::T, Tspecified::Type, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}} = isa(tevalfast(t, check_isdefined), Tspecified)
