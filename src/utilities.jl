@@ -58,3 +58,21 @@ function tevalfast(modul::Module, t::T, check_isdefined::Bool = false) where {T 
 end
 
 tevalfast(t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}} = tevalfast(@__MODULE__, t, check_isdefined)
+
+"""
+    evalfast(x)
+    evalfast(modul, x)
+
+Evaluates `x` fast. Uses `getfield` if `x` is a `Symbol`, and uses `eval` if it is an `Expr`
+# Examples
+```julia
+julia> evalfast(:Int64)
+
+julia> evalfast(:([5]))
+
+```
+"""
+evalfast(modul::Module, x::Expr)= modul.eval(x)
+evalfast(modul::Module, x::Symbol)= getfield(modul,x)
+evalfast(x::Expr)= Core.eval(@__MODULE__, x)
+evalfast(x::Symbol)= getfield(@__MODULE__,x)
