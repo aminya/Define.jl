@@ -133,3 +133,22 @@ function teval(modul::Module, t::T, check_isdefined::Bool = false) where {T <: U
     return Core.eval(modul, pt)
 end
 teval(t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}} = teval(@__MODULE__, t, check_isdefined)
+
+"""
+    ttypeof(t)
+    ttypeof(t::T, check_isdefined::Bool = false)
+
+Returns the type of an evaluated Token
+
+If you set `check_isdefined` to `true`, and `t` is not defined in the scope it returns `UndefToken` instead of throwing an error.
+
+# Examples
+```julia
+julia> t = collect(tokenize("Int64"))
+
+julia> ttypeof(t)
+DataType
+```
+"""
+ttypeof(t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}} = typeof(tevalfast(t, check_isdefined))
+
