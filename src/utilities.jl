@@ -76,3 +76,32 @@ evalfast(modul::Module, x::Expr)= modul.eval(x)
 evalfast(modul::Module, x::Symbol)= getfield(modul,x)
 evalfast(x::Expr)= Core.eval(@__MODULE__, x)
 evalfast(x::Symbol)= getfield(@__MODULE__,x)
+
+"""
+    tgetfield(t::T)
+    tgetfield(t::T, check_isdefined::Bool=false)
+    tgetfield(modul = @__MODULE__, t::T, check_isdefined::Bool=false)
+
+See [`tevalfast`](@ref) for fast Token evaluation.
+
+Parses and evaluates a Token that represents a `Symbol` in Julia. For `Symbol` it is similar to eval, but much faster.
+
+If you set `check_isdefined` to `true`, and `t` is not defined in the scope it returns `UndefToken` instead of throwing an error.
+
+# Examples
+```julia
+julia> t = collect(tokenize("Int64"))
+
+julia> tgetfield(t)
+Int64
+```
+"""
+function tgetfield(modul::Module, t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}}
+    pt = Meta.parse(t)
+    if check_isdefined && !(tisdefined(modul,pt))
+        return UndefToken
+    end
+    return getfield(modul,pt)
+end
+
+tgetfield(t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}}} = tgetfield(@__MODULE__, t, check_isdefined)
